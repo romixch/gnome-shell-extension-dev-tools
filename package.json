@@ -5,6 +5,7 @@
         "lint": "eslint ./src",
         "build": "npm run lint && ./scripts/build.sh",
         "install": "./scripts/install.sh",
+        "dist": "zip dist.zip -r dist",
         "dev": "dbus-run-session -- gnome-shell --nested --wayland"
     },
     "devDependencies": {
