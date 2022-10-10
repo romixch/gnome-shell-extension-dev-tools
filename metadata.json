@@ -1,0 +1,9 @@
+{
+  "name": "Dev Tools",
+  "description": "Provides some day to day tools needed by developers",
+  "version": 1,
+  "uuid": "devtools@romix.ch",
+  "shell-version": [
+    "42"
+  ]
+}

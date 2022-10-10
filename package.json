@@ -1,0 +1,14 @@
+{
+    "name": "gnome-shell-extension-devtools",
+    "version": "1",
+    "scripts": {
+        "lint": "eslint ./src",
+        "build": "npm run lint && ./scripts/build.sh",
+        "install": "./scripts/install.sh",
+        "dev": "dbus-run-session -- gnome-shell --nested --wayland"
+    },
+    "devDependencies": {
+        "eslint": "^8.25.0",
+        "eslint-plugin-jsdoc": "^39.3.6"
+    }
+}
