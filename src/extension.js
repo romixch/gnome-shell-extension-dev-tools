@@ -26,13 +26,13 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const Clipboard = St.Clipboard.get_default();
 
 const _ = ExtensionUtils.gettext;
 
 const Indicator = GObject.registerClass(
   class Indicator extends PanelMenu.Button {
       _init() {
+          this.Clipboard = St.Clipboard.get_default();
           super._init(0.0, _('dev tools'));
 
           this.add_child(
@@ -45,7 +45,7 @@ const Indicator = GObject.registerClass(
           const generateUUIDItem = new PopupMenu.PopupMenuItem(_('Generate UUID'));
           generateUUIDItem.connect('activate', () => {
               const uuid = GLib.uuid_string_random();
-              Clipboard.set_text(St.ClipboardType.CLIPBOARD, uuid);
+              this.Clipboard.set_text(St.ClipboardType.CLIPBOARD, uuid);
               Main.notify(_(`${uuid} copied to clipboard...`));
           });
           this.menu.addMenuItem(generateUUIDItem);
@@ -55,7 +55,7 @@ const Indicator = GObject.registerClass(
           );
           currentTimeInMillisItem.connect('activate', () => {
               const millis = `${Math.floor(GLib.get_real_time() / 1000)}`;
-              Clipboard.set_text(St.ClipboardType.CLIPBOARD, millis);
+              this.Clipboard.set_text(St.ClipboardType.CLIPBOARD, millis);
               Main.notify(_(`${millis} copied to clipboard...`));
           });
           this.menu.addMenuItem(currentTimeInMillisItem);

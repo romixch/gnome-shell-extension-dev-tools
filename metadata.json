@@ -1,6 +1,6 @@
 {
   "name": "Dev Tools",
-  "description": "Provides some day to day tools needed by developers",
+  "description": "Generate random UUID and current time in milliseconds as a shell extension.",
   "version": 1,
   "uuid": "devtools@romix.ch",
   "shell-version": [
