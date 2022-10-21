@@ -18,7 +18,7 @@
 
 /* exported init */
 
-const GETTEXT_DOMAIN = 'my-indicator-extension';
+const GETTEXT_DOMAIN = 'dev-tools';
 
 const {GObject, St, GLib} = imports.gi;
 
@@ -32,8 +32,8 @@ const _ = ExtensionUtils.gettext;
 const Indicator = GObject.registerClass(
   class Indicator extends PanelMenu.Button {
       _init() {
-          this.Clipboard = St.Clipboard.get_default();
           super._init(0.0, _('dev tools'));
+          this.Clipboard = St.Clipboard.get_default();
 
           this.add_child(
               new St.Icon({
@@ -42,26 +42,103 @@ const Indicator = GObject.registerClass(
               })
           );
 
-          const generateUUIDItem = new PopupMenu.PopupMenuItem(_('Generate UUID'));
-          generateUUIDItem.connect('activate', () => {
-              const uuid = GLib.uuid_string_random();
-              this.Clipboard.set_text(St.ClipboardType.CLIPBOARD, uuid);
-              Main.notify(_(`${uuid} copied to clipboard...`));
-          });
-          this.menu.addMenuItem(generateUUIDItem);
+          this.addUUIDUtils();
+          this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+          this.addTimeUtils();
+      }
 
-          const currentTimeInMillisItem = new PopupMenu.PopupMenuItem(
-              _('Current time in millis')
-          );
-          currentTimeInMillisItem.connect('activate', () => {
-              const millis = `${Math.floor(GLib.get_real_time() / 1000)}`;
-              this.Clipboard.set_text(St.ClipboardType.CLIPBOARD, millis);
-              Main.notify(_(`${millis} copied to clipboard...`));
+      addUUIDUtils() {
+          const baseMenuItem = new PopupMenu.PopupBaseMenuItem({reactive: false});
+          const container = createContainer('UUID');
+          const generateUUIDButton = new St.Button({label: _('Copy random UUID'), can_focus: true, track_hover: true, style_class: 'button'});
+          generateUUIDButton.connect('clicked', copyUUID(this.Clipboard, this.menu));
+          container.add_child(generateUUIDButton);
+          baseMenuItem.add_child(container);
+          this.menu.addMenuItem(baseMenuItem);
+      }
+
+      addTimeUtils() {
+          const baseMenuItem = new PopupMenu.PopupBaseMenuItem({reactive: false});
+          const container = createContainer('Time Utilities');
+
+          const copyTimeInSecondsButton = new St.Button({
+              label: _('Copy current time in seconds'),
+              can_focus: true, track_hover: true, style_class: 'button',
           });
-          this.menu.addMenuItem(currentTimeInMillisItem);
+          copyTimeInSecondsButton.connect('clicked', copyTimeInSeconds(this.Clipboard, this.menu));
+          container.add_child(copyTimeInSecondsButton);
+
+          container.add_child(new St.Bin({style_class: 'spacer'}));
+
+          const entry = new St.Entry({hint_text: 'enter unix timestamp in utc'});
+          container.add_child(entry);
+          container.add_child(new St.Bin({style_class: 'spacer'}));
+
+          const copyRowUTC = createCopyRow(this.Clipboard, this.menu);
+          container.add_child(copyRowUTC.row);
+
+          container.add_child(new St.Bin({style_class: 'spacer'}));
+
+          const copyRowLocal = createCopyRow(this.Clipboard, this.menu);
+          container.add_child(copyRowLocal.row);
+
+          entry.connect('key_release_event', calculateDateTimeFromTimestamp(entry, copyRowUTC, copyRowLocal));
+
+          baseMenuItem.add_child(container);
+          this.menu.addMenuItem(baseMenuItem);
       }
   }
 );
+
+const createContainer = title => {
+    const container = new St.BoxLayout({vertical: true});
+    container.add_child(new St.Label({text: title, style_class: 'title'}));
+    return container;
+};
+
+const createCopyRow = (clipboard, menu) => {
+    const row = new St.BoxLayout({style_class: 'row', x_expand: true, vertical: false, opacity: 0.5});
+    const label = new St.Label({text: '', x_expand: true});
+    row.add_child(label);
+    const copyIcon = new St.Icon({icon_name: 'edit-copy-symbolic', icon_size: 14});
+    const copyButton = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: copyIcon});
+    copyButton.connect('clicked', () => {
+        clipboard.set_text(St.ClipboardType.CLIPBOARD, label.get_text());
+        Main.notify(_(`${label.get_text()} copied to clipboard...`));
+        menu.toggle();
+    });
+    row.add_child(copyButton);
+    return {row, label};
+};
+
+const copyUUID = (clipboard, menu) => () => {
+    const uuid = GLib.uuid_string_random();
+    clipboard.set_text(St.ClipboardType.CLIPBOARD, uuid);
+    Main.notify(uuid + _(' copied to clipboard...'));
+    menu.toggle();
+};
+
+const copyTimeInSeconds = (clipboard, menu) => () => {
+    const seconds = `${Math.floor(GLib.get_real_time() / 1000 / 1000)}`;
+    clipboard.set_text(St.ClipboardType.CLIPBOARD, seconds);
+    Main.notify(_(`${seconds} copied to clipboard...`));
+    menu.toggle();
+};
+
+const calculateDateTimeFromTimestamp = (entry, utcRow, localRow) => () => {
+    const unixTimestamp = parseInt(entry.text);
+    if (!isNaN(unixTimestamp)) {
+        const dateTime = GLib.DateTime.new_from_unix_utc(unixTimestamp);
+        utcRow.label.set_text(dateTime.format_iso8601());
+        const localTimeZone = GLib.TimeZone.new_local();
+        const offsetInSeconds = localTimeZone.get_offset(unixTimestamp);
+        const localDateTime = dateTime.add_seconds(offsetInSeconds).to_timezone(localTimeZone);
+        localRow.label.set_text(localDateTime.format_iso8601());
+        utcRow.row.set_opacity(255);
+        localRow.row.set_opacity(255);
+    }
+    return true;
+};
 
 class Extension {
     constructor(uuid) {
