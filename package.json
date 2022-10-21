@@ -6,7 +6,7 @@
         "build": "npm run lint && ./scripts/build.sh",
         "install": "./scripts/install.sh",
         "dist": "cd dist && zip ../dist.zip ./*",
-        "dev": "dbus-run-session -- gnome-shell --nested --wayland"
+        "dev": "npm run build && npm run install && dbus-run-session -- gnome-shell --nested --wayland"
     },
     "devDependencies": {
         "eslint": "^8.25.0",
