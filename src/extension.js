@@ -93,9 +93,17 @@ const Indicator = GObject.registerClass(
           const buttonContainer = new St.BoxLayout();
           const downIcon = new St.Icon({icon_name: 'go-down-symbolic', icon_size: 14});
           const base64ToClearButton = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: downIcon});
+          base64ToClearButton.connect('clicked', () => {
+              const decoded = base64decode(base64Entry.text);
+              cleartextEntry.set_text(decoded);
+          });
           buttonContainer.add_child(base64ToClearButton);
           const upIcon = new St.Icon({icon_name: 'go-up-symbolic', icon_size: 14});
           const clearToBase64Button = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: upIcon});
+          clearToBase64Button.connect('clicked', () => {
+              const encoded = base64encode(cleartextEntry.text);
+              base64Entry.set_text(encoded);
+          });
           buttonContainer.add_child(clearToBase64Button);
           container.add_child(buttonContainer);
           const cleartextEntry = new St.Entry({hint_text: 'enter clear text string to convert'});
@@ -162,6 +170,39 @@ const calculateDateTimeFromTimestamp = (entry, container, utcRow, copySpacer1, c
     }
     return true;
 };
+
+const BASE64_STRING = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+const  base64encode = string => {
+    let output = '';
+    const stringSafe = `${string}\0\0\0`; // ugly
+    for (let index = 0; index < string.length; index += 3) {
+        let value = 0;
+        for (let i = 0; i < 3; i += 1)
+            value = value * 256 + stringSafe.charCodeAt(index + i);
+
+        const n = Math.min(string.length - index, 3);
+        for (let i = 0; i < 4; i += 1)
+            output += i <= n ? BASE64_STRING[Math.floor(value / Math.pow(64, 3 - i)) % 64] : '=';
+    }
+    return output;
+};
+
+const base64decode = string => {
+    let output = '';
+    for (let index = 0; index < string.length; index += 4) {
+        let value = 0;
+        let n = 3; // ugly
+        for (let i = 0; i < 4; i += 1) {
+            n -= string[index + i] === '=' ? 1 : 0;
+            value = (value * 64) + (string[index + i] === '=' ? 0 : BASE64_STRING.indexOf(string[index + i]));
+        }
+        for (let i = 0; i < n; i += 1)
+            output += String.fromCharCode(Math.floor(value / Math.pow(256, 2 - i)) % 256);
+    }
+    return output;
+};
+
 
 class Extension {
     constructor(uuid) {
