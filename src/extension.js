@@ -74,17 +74,12 @@ const Indicator = GObject.registerClass(
 
           const entry = new St.Entry({hint_text: 'enter unix timestamp in utc'});
           container.add_child(entry);
-          container.add_child(new St.Bin({style_class: 'spacer'}));
-
+          const copySpacer1 = new St.Bin({style_class: 'spacer'});
           const copyRowUTC = createCopyRow(this.Clipboard, this.menu);
-          container.add_child(copyRowUTC.row);
-
-          container.add_child(new St.Bin({style_class: 'spacer'}));
-
+          const copySpacer2 = new St.Bin({style_class: 'spacer'});
           const copyRowLocal = createCopyRow(this.Clipboard, this.menu);
-          container.add_child(copyRowLocal.row);
 
-          entry.connect('key_release_event', calculateDateTimeFromTimestamp(entry, copyRowUTC, copyRowLocal));
+          entry.connect('key_release_event', calculateDateTimeFromTimestamp(entry, container, copyRowUTC, copySpacer1, copySpacer2, copyRowLocal));
 
           baseMenuItem.add_child(container);
           this.menu.addMenuItem(baseMenuItem);
@@ -118,7 +113,7 @@ const createContainer = title => {
 };
 
 const createCopyRow = (clipboard, menu) => {
-    const row = new St.BoxLayout({style_class: 'row', x_expand: true, vertical: false, opacity: 0.5});
+    const row = new St.BoxLayout({style_class: 'row', x_expand: true, vertical: false});
     const label = new St.Label({text: '', x_expand: true});
     row.add_child(label);
     const copyIcon = new St.Icon({icon_name: 'edit-copy-symbolic', icon_size: 14});
@@ -146,17 +141,24 @@ const copyTimeInSeconds = (clipboard, menu) => () => {
     menu.toggle();
 };
 
-const calculateDateTimeFromTimestamp = (entry, utcRow, localRow) => () => {
+const calculateDateTimeFromTimestamp = (entry, container, utcRow, copySpacer1, copySpacer2, localRow) => () => {
     const unixTimestamp = parseInt(entry.text);
-    if (!isNaN(unixTimestamp)) {
+    if (isNaN(unixTimestamp)) {
+        container.remove_child(copySpacer1);
+        container.remove_child(utcRow.row);
+        container.remove_child(copySpacer2);
+        container.remove_child(localRow.row);
+    } else {
+        container.add_child(copySpacer1);
+        container.add_child(utcRow.row);
+        container.add_child(copySpacer2);
+        container.add_child(localRow.row);
         const dateTime = GLib.DateTime.new_from_unix_utc(unixTimestamp);
         utcRow.label.set_text(dateTime.format_iso8601());
         const localTimeZone = GLib.TimeZone.new_local();
         const offsetInSeconds = localTimeZone.get_offset(unixTimestamp);
         const localDateTime = dateTime.add_seconds(offsetInSeconds).to_timezone(localTimeZone);
         localRow.label.set_text(localDateTime.format_iso8601());
-        utcRow.row.set_opacity(255);
-        localRow.row.set_opacity(255);
     }
     return true;
 };
