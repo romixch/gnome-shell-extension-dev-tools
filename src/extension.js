@@ -45,6 +45,8 @@ const Indicator = GObject.registerClass(
           this.addUUIDUtils();
           this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
           this.addTimeUtils();
+          this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+          this.addBase64Utils();
       }
 
       addUUIDUtils() {
@@ -84,6 +86,25 @@ const Indicator = GObject.registerClass(
 
           entry.connect('key_release_event', calculateDateTimeFromTimestamp(entry, copyRowUTC, copyRowLocal));
 
+          baseMenuItem.add_child(container);
+          this.menu.addMenuItem(baseMenuItem);
+      }
+
+      addBase64Utils() {
+          const baseMenuItem = new PopupMenu.PopupBaseMenuItem({reactive: false});
+          const container = createContainer('Base64 Utilities');
+          const base64Entry = new St.Entry({hint_text: 'enter base64 string to convert'});
+          container.add_child(base64Entry);
+          const buttonContainer = new St.BoxLayout();
+          const downIcon = new St.Icon({icon_name: 'go-down-symbolic', icon_size: 14});
+          const base64ToClearButton = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: downIcon});
+          buttonContainer.add_child(base64ToClearButton);
+          const upIcon = new St.Icon({icon_name: 'go-up-symbolic', icon_size: 14});
+          const clearToBase64Button = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: upIcon});
+          buttonContainer.add_child(clearToBase64Button);
+          container.add_child(buttonContainer);
+          const cleartextEntry = new St.Entry({hint_text: 'enter clear text string to convert'});
+          container.add_child(cleartextEntry);
           baseMenuItem.add_child(container);
           this.menu.addMenuItem(baseMenuItem);
       }
