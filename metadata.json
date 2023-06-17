@@ -1,10 +1,12 @@
 {
   "name": "Dev Tools",
   "description": "Generate random UUID and current time in milliseconds as a shell extension.",
-  "version": 5,
+  "version": 8,
   "uuid": "devtools@romix.ch",
   "shell-version": [
-    "42"
+    "42",
+    "43",
+    "44"
   ],
   "url": "https://github.com/romixch/gnome-shell-extension-dev-tools"
 }
