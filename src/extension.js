@@ -16,18 +16,16 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* exported init */
-
 const GETTEXT_DOMAIN = 'dev-tools';
 
-const {GObject, St, GLib} = imports.gi;
+import GLib from 'gi://GLib';
+import St from 'gi://St';
+import GObject from 'gi://GObject';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Main = imports.ui.main;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-
-const _ = ExtensionUtils.gettext;
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 
 const Indicator = GObject.registerClass(
   class Indicator extends PanelMenu.Button {
@@ -204,15 +202,16 @@ const base64decode = string => {
 };
 
 
-class Extension {
-    constructor(uuid) {
-        this._uuid = uuid;
-        ExtensionUtils.initTranslations(GETTEXT_DOMAIN);
+export default class DevExtension extends Extension {
+    constructor(metadata) {
+        super(metadata);
+        this._metadata = metadata;
+        this.initTranslations(GETTEXT_DOMAIN);
     }
 
     enable() {
         this._indicator = new Indicator();
-        Main.panel.addToStatusArea(this._uuid, this._indicator);
+        Main.panel.addToStatusArea(this._metadata, this._indicator);
     }
 
     disable() {
@@ -222,10 +221,3 @@ class Extension {
 }
 
 
-/**
- *
- * @param {object} meta The data in metadata.json
- */
-function init(meta) {
-    return new Extension(meta.uuid);
-}
