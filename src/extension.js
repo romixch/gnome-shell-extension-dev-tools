@@ -16,8 +16,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-const GETTEXT_DOMAIN = 'dev-tools';
-
 import GLib from 'gi://GLib';
 import St from 'gi://St';
 import GObject from 'gi://GObject';
@@ -206,7 +204,6 @@ export default class DevExtension extends Extension {
     constructor(metadata) {
         super(metadata);
         this._metadata = metadata;
-        this.initTranslations(GETTEXT_DOMAIN);
     }
 
     enable() {
