@@ -90,6 +90,7 @@ const Indicator = GObject.registerClass(
           const container = createContainer('Base64 Utilities');
           const base64Entry = new St.Entry({hint_text: 'enter base64 string to convert'});
           container.add_child(base64Entry);
+          container.add_child(new St.Bin({style_class: 'spacer'}));
           const buttonContainer = new St.BoxLayout();
           const downIcon = new St.Icon({icon_name: 'go-down-symbolic', icon_size: 14});
           const base64ToClearButton = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: downIcon});
@@ -106,6 +107,7 @@ const Indicator = GObject.registerClass(
           });
           buttonContainer.add_child(clearToBase64Button);
           container.add_child(buttonContainer);
+          container.add_child(new St.Bin({style_class: 'spacer'}));
           const cleartextEntry = new St.Entry({hint_text: 'enter clear text string to convert'});
           container.add_child(cleartextEntry);
           baseMenuItem.add_child(container);
