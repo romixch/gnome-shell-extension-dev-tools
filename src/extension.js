@@ -86,14 +86,16 @@ const Indicator = GObject.registerClass(
           const container = createContainer('Base64 Utilities');
           const base64Entry = new St.Entry({hint_text: 'enter base64 string to convert'});
           container.add_child(base64Entry);
-          container.add_child(new St.Bin({style_class: 'spacer'}));
-          const buttonContainer = new St.BoxLayout();
+          container.add_child(new St.Bin({style_class: 'gap'}));
+
+          const buttonContainer = new St.BoxLayout({x_expand: true});
           const downIcon = new St.Icon({icon_name: 'go-down-symbolic', icon_size: 14});
           const base64ToClearButton = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: downIcon});
           base64ToClearButton.connect('clicked', () => {
               const decoded = base64decode(base64Entry.text);
               cleartextEntry.set_text(decoded);
           });
+          buttonContainer.add_child(new St.Bin({x_expand: true}));
           buttonContainer.add_child(base64ToClearButton);
           const upIcon = new St.Icon({icon_name: 'go-up-symbolic', icon_size: 14});
           const clearToBase64Button = new St.Button({can_focus: true, track_hover: true, style_class: 'button', child: upIcon});
@@ -101,9 +103,12 @@ const Indicator = GObject.registerClass(
               const encoded = base64encode(cleartextEntry.text);
               base64Entry.set_text(encoded);
           });
+          buttonContainer.add_child(new St.Bin({style_class: 'gap'}));
           buttonContainer.add_child(clearToBase64Button);
+          buttonContainer.add_child(new St.Bin({x_expand: true}));
           container.add_child(buttonContainer);
-          container.add_child(new St.Bin({style_class: 'spacer'}));
+
+          container.add_child(new St.Bin({style_class: 'gap'}));
           const cleartextEntry = new St.Entry({hint_text: 'enter clear text string to convert'});
           container.add_child(cleartextEntry);
           baseMenuItem.add_child(container);
@@ -113,13 +118,13 @@ const Indicator = GObject.registerClass(
 );
 
 const createContainer = title => {
-    const container = new St.BoxLayout({vertical: true});
+    const container = new St.BoxLayout({vertical: true, x_expand: true});
     container.add_child(new St.Label({text: title, style_class: 'title'}));
     return container;
 };
 
 const createCopyRow = (clipboard, menu) => {
-    const row = new St.BoxLayout({style_class: 'row', x_expand: true, vertical: false});
+    const row = new St.BoxLayout({style_class: 'row'});
     const label = new St.Label({text: '', x_expand: true});
     row.add_child(label);
     const copyIcon = new St.Icon({icon_name: 'edit-copy-symbolic', icon_size: 14});
