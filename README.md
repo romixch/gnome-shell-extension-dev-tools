@@ -15,6 +15,6 @@ You can clone the extension from github and send me pull requests.
 
 ### How to run it locally
 
-After cloning, you can build and install it using following shell script: `./scripts/build.sh` and `./scripts/install.sh`.
+First you have to install the dependencies with `npm ci`. Then you are able to build, install and run the extension simply by `npm run dev`.
 
-Then you run a gnome session with `dbus-run-session -- gnome-shell --nested --wayland`. For more information see [https://gjs.guide/extensions/topics/extension.html](https://gjs.guide/extensions/topics/extension.html).
+For more information see [https://gjs.guide/extensions/topics/extension.html](https://gjs.guide/extensions/topics/extension.html).
