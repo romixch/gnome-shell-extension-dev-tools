@@ -1,15 +1,15 @@
 {
-    "name": "gnome-shell-extension-devtools",
-    "version": "1",
-    "scripts": {
-        "lint": "eslint ./src",
-        "build": "npm run lint && ./scripts/build.sh",
-        "install": "./scripts/install.sh",
-        "dist": "cd dist && zip ../dist.zip ./*",
-        "dev": "npm run build && npm run install && dbus-run-session -- gnome-shell --nested --wayland"
-    },
-    "devDependencies": {
-        "eslint": "^8.25.0",
-        "eslint-plugin-jsdoc": "^39.3.6"
-    }
+  "name": "gnome-shell-extension-devtools",
+  "version": "1",
+  "scripts": {
+    "lint": "eslint ./src",
+    "build": "npm run lint && ./scripts/build.sh",
+    "install": "./scripts/install.sh",
+    "dist": "cd dist && zip ../dist.zip ./*",
+    "dev": "npm run build && npm run install && env MUTTER_DEBUG_DUMMY_MODE_SPECS=1024x768 dbus-run-session -- gnome-shell --nested --wayland"
+  },
+  "devDependencies": {
+    "eslint": "^8.25.0",
+    "eslint-plugin-jsdoc": "^39.3.6"
+  }
 }
